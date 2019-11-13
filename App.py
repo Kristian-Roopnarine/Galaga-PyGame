@@ -42,11 +42,18 @@ class App:
                 
             keys = pygame.key.get_pressed()
 
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT] and player.x > 0:
                 player.moveLeft()
             
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT] and player.x < self.width - player.width:
                 player.moveRight()
+            
+            if keys[pygame.K_SPACE]:
+                player.shoot()
+            
+            if player.isHit():
+                player.loseHealth()
+            
             
             self.screen.fill(self.background)
             self.drawPlayer()

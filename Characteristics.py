@@ -15,11 +15,10 @@ class Characteristics:
         pass
 
     def getX(self):
-        pass
+        return self.x
 
     def getY(self):
-        pass
+        return self.y
 
     def loseHealth(self):
-        pass
-    
+        self.health -= 1
