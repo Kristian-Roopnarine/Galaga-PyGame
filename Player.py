@@ -7,6 +7,7 @@ class Player(Characteristics):
         super().__init__(x,y,width,height,color,health)
         self.steps = steps
         self.score = 0
+        self.coolDown = 0.4
 
     def moveLeft(self):
         self.x -= self.steps

@@ -10,7 +10,7 @@ class Characteristics:
         self.color = color
         self.health = health
 
-    def shoot(self,bullets):
+    def createBullet(self,bullets):
         #find middle of ship/enemy
         x = self.x + (self.width // 2)
         y = self.y + (self.height // 2)
@@ -21,9 +21,10 @@ class Characteristics:
         #push bullet into list
         bullets.append(bullet)
 
-        #move bullet
-        bullet.moveUp()
-
+    '''def shoot(self,bullets):
+        for bullet in bullets:
+            if bullet.x < 400 and bullet.x > 0:
+                bullet.moveUp()'''
 
     def isHit(self):
         pass
