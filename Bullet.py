@@ -10,8 +10,9 @@ class Bullet:
 
     def moveUp(self):
         self.y -= self.step
-    
+
     def moveDown(self):
         self.y += self.step
+    
 
     
