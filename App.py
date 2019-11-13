@@ -14,6 +14,7 @@ class App:
         pygame.init()
         self.screen = pygame.display.set_mode((self.width,self.height))
         self.running = True
+        self.clock = pygame.time.Clock()
         
     def drawGame(self):
         for y in range(self.height//5):
@@ -31,13 +32,25 @@ class App:
 
     def startApp(self):
         self.drawGame()
-        self.drawPlayer()
         pygame.display.flip()
 
         while self.running:
+            self.clock.tick(60)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.endGame()
+                
+            keys = pygame.key.get_pressed()
+
+            if keys[pygame.K_LEFT]:
+                player.moveLeft()
+            
+            if keys[pygame.K_RIGHT]:
+                player.moveRight()
+            
+            self.screen.fill(self.background)
+            self.drawPlayer()
+            pygame.display.update()
     
     
 

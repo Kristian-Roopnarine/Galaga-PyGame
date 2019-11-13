@@ -7,10 +7,10 @@ class Player(Characteristics):
         self.steps = steps
 
     def moveLeft(self):
-        pass
+        self.x -= self.steps
 
     def moveRight(self):
-        pass
+        self.x += self.steps
 
     def incScore(self):
         pass
