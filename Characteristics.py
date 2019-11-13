@@ -19,3 +19,7 @@ class Characteristics:
 
     def getY(self):
         pass
+
+    def loseHealth(self):
+        pass
+    
