@@ -44,7 +44,6 @@ class App:
                     enemy = Enemy(x,y,25,25,(255,0,0),2,2)
                 else:
                     enemy = Enemy(x,y,25,25,(255,0,0),2,3)
-                print(enemy.row)
                 list.append(enemy)
                 
     
@@ -69,8 +68,9 @@ class App:
         self.running = False
 
     def startApp(self):
-        bullet_list = []
+        player_bullet_list = []
         enemy_list = []
+        enemy_bullet_list = []
         self.drawGame()
         self.createEnemies(enemy_list)
         pygame.display.flip()
@@ -84,12 +84,19 @@ class App:
                 if event.type == pygame.QUIT:
                     self.endGame()
         
-            for bullet in bullet_list:
-                if bullet.y < 700:
+            for bullet in player_bullet_list:
+                if 0 < bullet.y < 600:
                     bullet.moveUp()
                     
                 else:
-                    bullet_list.pop(bullet_list.index(bullet))
+                    player_bullet_list.pop(player_bullet_list.index(bullet))
+            
+            for bullet in enemy_bullet_list:
+                if 600 > bullet.y > 0:
+                    bullet.moveDown()
+                    
+                else:
+                    enemy_bullet_list.pop(enemy_bullet_list.index(bullet))
                 
             keys = pygame.key.get_pressed()
 
@@ -100,7 +107,7 @@ class App:
                 player.moveRight()
             
             if keys[pygame.K_SPACE] and not self.onCooldown(player.coolDown):
-                player.createBullet(bullet_list)
+                player.createBullet(player_bullet_list)
                 self.resetCooldown()
 
             if player.isHit():
@@ -110,7 +117,9 @@ class App:
             self.screen.fill(self.background)
             self.drawPlayer()    
             self.drawEnemies(enemy_list)
-            self.drawBullet(bullet_list)
+            self.drawBullet(player_bullet_list)
+            self.drawBullet(enemy_bullet_list)
+            print(player_bullet_list)
             pygame.display.update()
     
     
