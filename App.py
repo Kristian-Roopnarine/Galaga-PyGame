@@ -16,8 +16,9 @@ class App:
         self.screen = pygame.display.set_mode((self.width,self.height))
         self.running = True
         self.clock = pygame.time.Clock()
-        self.start_time = 0
         self.now = 0
+        self.startPlayerCooldown = 0
+        self.startEnemyCooldown = 0
         self.playerCooldown = 0
         self.enemyCooldown = 0
 
@@ -40,12 +41,10 @@ class App:
     def createEnemies(self,list):
         for x in range(100-(25//2),301,100):
             for y in range(25,301,100):
-                if y == 25:
-                    enemy = Enemy(x,y,25,25,(255,0,0),2,3)
-                elif y == 125:
-                    enemy = Enemy(x,y,25,25,(255,0,0),2,2)
+                if y == 225:
+                    enemy = Enemy(x,y,25,25,(255,0,0),2,True)
                 else:
-                    enemy = Enemy(x,y,25,25,(255,0,0),2,1)
+                    enemy = Enemy(x,y,25,25,(255,0,0),2,False)
                 list.append(enemy)
                 
     
@@ -55,16 +54,20 @@ class App:
             pygame.draw.rect(self.screen, enemy.color , e)
     
     def resetCooldown(self,character=None):
-        self.start_time = pygame.time.get_ticks()
         if character == 'player':
+            self.startPlayerCooldown = pygame.time.get_ticks()
             self.playerCooldown = 0
         elif character == 'enemy':
+            self.startEnemyCooldown = pygame.time.get_ticks()
             self.enemyCooldown = 0
+        else:
+            self.startEnemyCooldown = pygame.time.get_ticks()
+            self.startPlayerCooldown = pygame.time.get_ticks()
 
     def updateCooldown(self):
         self.now = pygame.time.get_ticks()
-        self.playerCooldown = (self.now - self.start_time) / 1000
-        self.enemyCooldown = (self.now - self.start_time) / 1000
+        self.playerCooldown = (self.now - self.startPlayerCooldown) / 1000
+        self.enemyCooldown = (self.now - self.startEnemyCooldown) / 1000
 
     def playerOnCooldown(self,cooldown):
        return cooldown > self.playerCooldown
@@ -120,7 +123,7 @@ class App:
             
             if not self.enemyOnCooldown(1):
                 for enemy in enemy_list:
-                    if enemy.row == 1:
+                    if enemy.canShoot:
                         enemy.createBullet(enemy_bullet_list)
                 self.resetCooldown('enemy')
                 
