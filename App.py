@@ -35,6 +35,24 @@ class App:
             b = pygame.Rect(bullet.x,bullet.y,bullet.width,bullet.height)
             pygame.draw.rect(self.screen,bullet.color,b)
     
+    def createEnemies(self,list):
+        for x in range(100-(25//2),301,100):
+            for y in range(75,301,100):
+                if y == 75:
+                    enemy = Enemy(x,y,25,25,(255,0,0),2,1)
+                elif y == 175:
+                    enemy = Enemy(x,y,25,25,(255,0,0),2,2)
+                else:
+                    enemy = Enemy(x,y,25,25,(255,0,0),2,3)
+                print(enemy.row)
+                list.append(enemy)
+                
+    
+    def drawEnemies(self,enemies):
+        for enemy in enemies:
+            e = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
+            pygame.draw.rect(self.screen, enemy.color , e)
+    
     def resetCooldown(self):
         self.start_time = pygame.time.get_ticks()
         self.cooldown = 0
@@ -51,10 +69,11 @@ class App:
         self.running = False
 
     def startApp(self):
-        self.drawGame()
-        pygame.display.flip()
         bullet_list = []
         enemy_list = []
+        self.drawGame()
+        self.createEnemies(enemy_list)
+        pygame.display.flip()
         self.resetCooldown()
 
         while self.running:
@@ -89,7 +108,8 @@ class App:
             
             
             self.screen.fill(self.background)
-            self.drawPlayer()
+            self.drawPlayer()    
+            self.drawEnemies(enemy_list)
             self.drawBullet(bullet_list)
             pygame.display.update()
     
