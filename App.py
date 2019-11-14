@@ -16,6 +16,9 @@ class App:
         self.screen = pygame.display.set_mode((self.width,self.height))
         self.running = True
         self.clock = pygame.time.Clock()
+        self.start_time = 0
+        self.now = 0
+        self.cooldown = 0
         
     def drawGame(self):
         for y in range(self.height//5):
@@ -31,6 +34,19 @@ class App:
         for bullet in bullets:
             b = pygame.Rect(bullet.x,bullet.y,bullet.width,bullet.height)
             pygame.draw.rect(self.screen,bullet.color,b)
+    
+
+    def resetCooldown(self):
+        self.start_time = pygame.time.get_ticks()
+        self.cooldown = 0
+
+    def updateCooldown(self):
+        self.now = pygame.time.get_ticks()
+        self.cooldown = (self.now - self.start_time) / 1000
+
+    def onCooldown(self,cooldown):
+        return cooldown > self.cooldown
+        
 
     def endGame(self):
         self.running = False
@@ -39,25 +55,24 @@ class App:
         self.drawGame()
         pygame.display.flip()
         bullet_list = []
-        start_time = pygame.time.get_ticks()
+        self.resetCooldown()
+
         while self.running:
             self.clock.tick(60)
-            now = pygame.time.get_ticks()
-            cooldown = (now - start_time) / 1000
+            self.updateCooldown()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.endGame()
 
-                if event.type == pygame.KEYDOWN and event.key == 32 and cooldown > player.coolDown: 
+                if event.type == pygame.KEYDOWN and event.key == 32 and not self.onCooldown(player.coolDown): 
                     player.createBullet(bullet_list)
-                    start_time = pygame.time.get_ticks()
-                    cooldown = 0
+                    self.resetCooldown()
                     
             for bullet in bullet_list:
                 if bullet.y < 700:
                     bullet.moveUp()
-                    #player.coolDown = True
+                    
                 else:
                     bullet_list.pop(bullet_list.index(bullet))
                 
@@ -69,10 +84,9 @@ class App:
             if keys[pygame.K_RIGHT] and player.x < self.width - player.width:
                 player.moveRight()
             
-            if keys[pygame.K_SPACE] and cooldown > player.coolDown:
+            if keys[pygame.K_SPACE] and not self.onCooldown(player.coolDown):
                 player.createBullet(bullet_list)
-                start_time = pygame.time.get_ticks()
-                cooldown = 0
+                self.resetCooldown()
 
             if player.isHit():
                 player.loseHealth()
