@@ -35,7 +35,6 @@ class App:
             b = pygame.Rect(bullet.x,bullet.y,bullet.width,bullet.height)
             pygame.draw.rect(self.screen,bullet.color,b)
     
-
     def resetCooldown(self):
         self.start_time = pygame.time.get_ticks()
         self.cooldown = 0
@@ -55,6 +54,7 @@ class App:
         self.drawGame()
         pygame.display.flip()
         bullet_list = []
+        enemy_list = []
         self.resetCooldown()
 
         while self.running:
@@ -64,11 +64,7 @@ class App:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.endGame()
-
-                if event.type == pygame.KEYDOWN and event.key == 32 and not self.onCooldown(player.coolDown): 
-                    player.createBullet(bullet_list)
-                    self.resetCooldown()
-                    
+        
             for bullet in bullet_list:
                 if bullet.y < 700:
                     bullet.moveUp()
