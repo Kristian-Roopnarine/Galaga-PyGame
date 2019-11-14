@@ -18,7 +18,9 @@ class App:
         self.clock = pygame.time.Clock()
         self.start_time = 0
         self.now = 0
-        self.cooldown = 0
+        self.playerCooldown = 0
+        self.enemyCooldown = 0
+
         
     def drawGame(self):
         for y in range(self.height//5):
@@ -37,13 +39,13 @@ class App:
     
     def createEnemies(self,list):
         for x in range(100-(25//2),301,100):
-            for y in range(75,301,100):
-                if y == 75:
-                    enemy = Enemy(x,y,25,25,(255,0,0),2,1)
-                elif y == 175:
+            for y in range(25,301,100):
+                if y == 25:
+                    enemy = Enemy(x,y,25,25,(255,0,0),2,3)
+                elif y == 125:
                     enemy = Enemy(x,y,25,25,(255,0,0),2,2)
                 else:
-                    enemy = Enemy(x,y,25,25,(255,0,0),2,3)
+                    enemy = Enemy(x,y,25,25,(255,0,0),2,1)
                 list.append(enemy)
                 
     
@@ -52,18 +54,24 @@ class App:
             e = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
             pygame.draw.rect(self.screen, enemy.color , e)
     
-    def resetCooldown(self):
+    def resetCooldown(self,character=None):
         self.start_time = pygame.time.get_ticks()
-        self.cooldown = 0
+        if character == 'player':
+            self.playerCooldown = 0
+        elif character == 'enemy':
+            self.enemyCooldown = 0
 
     def updateCooldown(self):
         self.now = pygame.time.get_ticks()
-        self.cooldown = (self.now - self.start_time) / 1000
+        self.playerCooldown = (self.now - self.start_time) / 1000
+        self.enemyCooldown = (self.now - self.start_time) / 1000
 
-    def onCooldown(self,cooldown):
-        return cooldown > self.cooldown
+    def playerOnCooldown(self,cooldown):
+       return cooldown > self.playerCooldown
+    
+    def enemyOnCooldown(self,cooldown):
+        return cooldown > self.enemyCooldown
         
-
     def endGame(self):
         self.running = False
 
@@ -106,12 +114,19 @@ class App:
             if keys[pygame.K_RIGHT] and player.x < self.width - player.width:
                 player.moveRight()
             
-            if keys[pygame.K_SPACE] and not self.onCooldown(player.coolDown):
+            if keys[pygame.K_SPACE] and not self.playerOnCooldown(player.cooldown):
                 player.createBullet(player_bullet_list)
-                self.resetCooldown()
-
+                self.resetCooldown('player')
+            
+            if not self.enemyOnCooldown(1):
+                for enemy in enemy_list:
+                    if enemy.row == 1:
+                        enemy.createBullet(enemy_bullet_list)
+                self.resetCooldown('enemy')
+                
             if player.isHit():
                 player.loseHealth()
+            
             
             
             self.screen.fill(self.background)
@@ -119,7 +134,6 @@ class App:
             self.drawEnemies(enemy_list)
             self.drawBullet(player_bullet_list)
             self.drawBullet(enemy_bullet_list)
-            print(player_bullet_list)
             pygame.display.update()
     
     

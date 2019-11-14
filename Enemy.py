@@ -6,7 +6,7 @@ class Enemy(Characteristics):
         super().__init__(x,y,width,height,color,health)
         self.row = row
         self.canShoot = False
-        self.cooldown = .5
+        self.cooldown = 0.5
 
     def spawn(self):
         pass
