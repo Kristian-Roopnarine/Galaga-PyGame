@@ -1,4 +1,4 @@
-from Characteristics import Characteristics
+from Characteristics import *
 import time
 
 class Enemy(Characteristics):
@@ -13,15 +13,18 @@ class Enemy(Characteristics):
     def spawn(self):
         pass
     
+    '''
     def resetCooldown(self):
         self.start_cooldown = time.time() 
 
     def onCooldown(self):
         self.timer_ = time.time() - self.start_cooldown
         return self.timer_ > self.cooldown
-
+    '''
 def create_enemies(x,y,canShoot):
     return Enemy(x,y,25,25,(255,0,0),2,canShoot)
     
-        
+
+
+
 

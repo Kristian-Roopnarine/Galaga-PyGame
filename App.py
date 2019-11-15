@@ -47,7 +47,6 @@ class App:
                     enemy = create_enemies(x,y,False)
                 list.append(enemy)
                 
-    
     def drawEnemies(self,enemies):
         for enemy in enemies:
             e = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
@@ -86,11 +85,10 @@ class App:
         self.drawGame()
         self.createEnemies(enemy_list)
         pygame.display.flip()
-        self.resetCooldown()
+        
 
         while self.running:
             self.clock.tick(60)
-            self.updateCooldown()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -120,7 +118,7 @@ class App:
                 player.createBullet(player_bullet_list)
                 self.resetCooldown('player')
             
-            if not self.enemyOnCooldown(1):
+            if not #enemy on cooldown:
                 for enemy in enemy_list:
                     if enemy.canShoot:
                         enemy.createBullet(enemy_bullet_list)

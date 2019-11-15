@@ -1,4 +1,4 @@
-from Characteristics import Characteristics
+from Characteristics import *
 import time
 
 class Player(Characteristics):
@@ -19,13 +19,14 @@ class Player(Characteristics):
 
     def incScore(self):
         self.score += 1
-    
+    '''
     def resetCooldown(self):
         self.start_cooldown = time.time()
 
     def onCooldown(self):
         self.timer_ = time.time() - self.start_cooldown
         return self.timer_ > self.cooldown
+    '''
 
 
 
