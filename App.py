@@ -16,13 +16,12 @@ class App:
         self.screen = pygame.display.set_mode((self.width,self.height))
         self.running = True
         self.clock = pygame.time.Clock()
-        self.now = 0
         self.startPlayerCooldown = 0
-        self.startEnemyCooldown = 0
         self.playerCooldown = 0
+        self.startEnemyCooldown = 0
         self.enemyCooldown = 0
-
-        
+        self.now = 0
+    
     def drawGame(self):
         for y in range(self.height//5):
             for x in range(self.width//5):
@@ -51,6 +50,7 @@ class App:
         for enemy in enemies:
             e = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
             pygame.draw.rect(self.screen, enemy.color , e)
+
     
     def resetCooldown(self,character=None):
         if character == 'player':
@@ -62,7 +62,7 @@ class App:
         else:
             self.startEnemyCooldown = pygame.time.get_ticks()
             self.startPlayerCooldown = pygame.time.get_ticks()
-    '''
+    
     def updateCooldown(self):
         self.now = pygame.time.get_ticks()
         self.playerCooldown = (self.now - self.startPlayerCooldown) / 1000
@@ -73,7 +73,8 @@ class App:
     
     def enemyOnCooldown(self,cooldown):
         return cooldown > self.enemyCooldown
-        '''
+        
+
     def endGame(self):
         self.running = False
 
@@ -81,14 +82,13 @@ class App:
         player_bullet_list = []
         enemy_list = []
         enemy_bullet_list = []
-
         self.drawGame()
         self.createEnemies(enemy_list)
         pygame.display.flip()
         
-
         while self.running:
             self.clock.tick(60)
+            self.updateCooldown()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -118,10 +118,10 @@ class App:
                 player.createBullet(player_bullet_list)
                 self.resetCooldown('player')
             
-            if not #enemy on cooldown:
-                for enemy in enemy_list:
-                    if enemy.canShoot:
-                        enemy.createBullet(enemy_bullet_list)
+            if not self.enemyOnCooldown(1):
+                for enemies in enemy_list:
+                    if enemies.canShoot:
+                        enemies.createBullet(enemy_bullet_list)
                 self.resetCooldown('enemy')
                 
             if player.isHit():

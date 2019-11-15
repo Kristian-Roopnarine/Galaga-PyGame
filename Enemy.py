@@ -7,12 +7,10 @@ class Enemy(Characteristics):
         super().__init__(x,y,width,height,color,health)
         self.canShoot = canShoot
         self.cooldown = 1.0
-        self.timer_ = 0
-        self.start_cooldown = 0
 
     def spawn(self):
         pass
-    
+
     '''
     def resetCooldown(self):
         self.start_cooldown = time.time() 

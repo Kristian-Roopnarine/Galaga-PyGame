@@ -8,8 +8,6 @@ class Player(Characteristics):
         self.steps = steps
         self.score = 0
         self.cooldown = 0.4
-        self.timer_ = 0
-        self.start_cooldown = 0
 
     def moveLeft(self):
         self.x -= self.steps

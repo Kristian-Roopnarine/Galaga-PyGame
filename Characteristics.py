@@ -1,5 +1,5 @@
 from Bullet import Bullet
-import time
+from datetime import date
 
 class Characteristics:
 
@@ -38,10 +38,12 @@ class Characteristics:
 
     def loseHealth(self):
         self.health -= 1
-
+'''
 def reset_cooldown(player):
-    player.start_cooldown = time.time()
+    player.start_cooldown = date.
+    print(player, player.start_cooldown)
 
 def on_cooldown(player):
-    player.timer_ = time.time() - player.start_cooldown
-    return player.timer_ > player.cooldown
+    player.timer_ = (dt.dt.now() - player.start_cooldown) / 1000
+    return player.timer_ < player.cooldown 
+'''
