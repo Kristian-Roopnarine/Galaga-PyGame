@@ -3,7 +3,7 @@ from Player import Player
 from Enemy import *
 from Bullet import Bullet
 
-player = Player(175,525,25,25,(255,255,255),10,5)
+player = Player(175,525,25,25,(255,255,255),3,5)
 
 class App:
 
@@ -74,7 +74,6 @@ class App:
     def enemyOnCooldown(self,cooldown):
         return cooldown > self.enemyCooldown
         
-
     def endGame(self):
         self.running = False
 
@@ -124,10 +123,17 @@ class App:
                         enemies.createBullet(enemy_bullet_list)
                 self.resetCooldown('enemy')
                 
-            if player.isHit():
+            if player.isHit(enemy_bullet_list):
                 player.loseHealth()
+                print(player.health)
+                if player.health == 0:
+                    self.endGame()
             
-            
+            for enemies in enemy_list:
+                if enemies.isHit(player_bullet_list):
+                    enemies.loseHealth()
+                    if enemies.health == 0:
+                        enemy_list.pop(enemy_list.index(enemies))
             
             self.screen.fill(self.background)
             self.drawPlayer()    

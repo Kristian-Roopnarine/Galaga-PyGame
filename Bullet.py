@@ -14,6 +14,12 @@ class Bullet:
     def moveDown(self):
         self.y += self.step
 
+    def getX(self):
+        return self.x
+    
+    def getY(self):
+        return self.y
+
 
 
     

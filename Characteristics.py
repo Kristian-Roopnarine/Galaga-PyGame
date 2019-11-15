@@ -27,8 +27,14 @@ class Characteristics:
             if bullet.x < 400 and bullet.x > 0:
                 bullet.moveUp()'''
 
-    def isHit(self):
-        pass
+    def isHit(self,bullet):
+        for b in bullet:
+            b_x = b.getX()
+            b_y = b.getY()
+            if self.x < b_x < self.x + self.width and self.y < b_y < self.y + self.height:
+                bullet.pop(bullet.index(b))
+                return True
+        
 
     def getX(self):
         return self.x
