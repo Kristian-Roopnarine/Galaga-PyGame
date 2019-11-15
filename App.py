@@ -1,12 +1,4 @@
-import pygame
-from Player import Player
-from Enemy import *
-from Bullet import Bullet
-
-player = Player(175,525,25,25,(255,255,255),5,5)
-
 class App:
-
     def __init__(self):
         self.width = 400
         self.height = 600
@@ -16,11 +8,6 @@ class App:
         self.screen = pygame.display.set_mode((self.width,self.height))
         self.running = True
         self.clock = pygame.time.Clock()
-        self.startPlayerCooldown = 0
-        self.playerCooldown = 0
-        self.startEnemyCooldown = 0
-        self.enemyCooldown = 0
-        self.now = 0
     
     def drawGame(self):
         for y in range(self.height//5):
@@ -60,29 +47,7 @@ class App:
         self.drawBullet(pblist)
         self.drawBullet(eblist)
         pygame.display.update()
-
-    def resetCooldown(self,character=None):
-        if character == 'player':
-            self.startPlayerCooldown = pygame.time.get_ticks()
-            self.playerCooldown = 0
-        elif character == 'enemy':
-            self.startEnemyCooldown = pygame.time.get_ticks()
-            self.enemyCooldown = 0
-        else:
-            self.startEnemyCooldown = pygame.time.get_ticks()
-            self.startPlayerCooldown = pygame.time.get_ticks()
-    
-    def updateCooldown(self):
-        self.now = pygame.time.get_ticks()
-        self.playerCooldown = (self.now - self.startPlayerCooldown) / 1000
-        self.enemyCooldown = (self.now - self.startEnemyCooldown) / 1000
-
-    def playerOnCooldown(self,cooldown):
-        return cooldown > self.playerCooldown
-    
-    def enemyOnCooldown(self,cooldown):
-        return cooldown > self.enemyCooldown
-        
+         
     def endGame(self):
         self.running = False
 
@@ -96,7 +61,6 @@ class App:
         
         while self.running:
             self.clock.tick(60)
-            self.updateCooldown()
             shooter_count = 0
 
             for event in pygame.event.get():
@@ -165,6 +129,3 @@ class App:
             pygame.display.update()
             '''
             self.redraw(enemy_list,player_bullet_list,enemy_bullet_list)
-    
-    
-
