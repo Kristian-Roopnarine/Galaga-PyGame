@@ -143,6 +143,7 @@ class Game:
         self.block = 10
         self.background = (0,0,0)
         self.running = True
+        self.round = 1
         self.enemies = []
         self.enemy_bullet_list = []
         self.player_bullet_list = []
@@ -197,8 +198,8 @@ class Game:
         pygame.display.flip()
 
         while self.running:
-            self.clock.tick(60)
 
+            self.clock.tick(60)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.endGame()
@@ -207,11 +208,9 @@ class Game:
 
             if keys[pygame.K_LEFT] and player.x > 0:
                 player.moveLeft()
-                print(player.x)
             
             if keys[pygame.K_RIGHT] and player.x < self.width - player.width:
                 player.moveRight()
-                print(player.x)
 
             self.redraw()
 
@@ -224,7 +223,7 @@ def resize(image):
 
 
 # enemy positions
-x = [87.5,187.5,287.5]
+x = [68+25,268,468-25]
 y = [225,125,25]
 pygame.init()
 window = pygame.display.set_mode((600,800))
