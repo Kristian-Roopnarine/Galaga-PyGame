@@ -1,6 +1,6 @@
 import pygame
 from Player import Player
-from Enemy import Enemy
+from Enemy import *
 from Bullet import Bullet
 
 player = Player(175,525,25,25,(255,255,255),10,5)
@@ -42,9 +42,9 @@ class App:
         for x in range(100-(25//2),301,100):
             for y in range(25,301,100):
                 if y == 225:
-                    enemy = Enemy(x,y,25,25,(255,0,0),2,True)
+                    enemy = create_enemies(x,y,True)
                 else:
-                    enemy = Enemy(x,y,25,25,(255,0,0),2,False)
+                    enemy = create_enemies(x,y,False)
                 list.append(enemy)
                 
     
@@ -63,18 +63,18 @@ class App:
         else:
             self.startEnemyCooldown = pygame.time.get_ticks()
             self.startPlayerCooldown = pygame.time.get_ticks()
-
+    '''
     def updateCooldown(self):
         self.now = pygame.time.get_ticks()
         self.playerCooldown = (self.now - self.startPlayerCooldown) / 1000
         self.enemyCooldown = (self.now - self.startEnemyCooldown) / 1000
 
     def playerOnCooldown(self,cooldown):
-       return cooldown > self.playerCooldown
+        return cooldown > self.playerCooldown
     
     def enemyOnCooldown(self,cooldown):
         return cooldown > self.enemyCooldown
-        
+        '''
     def endGame(self):
         self.running = False
 
@@ -82,6 +82,7 @@ class App:
         player_bullet_list = []
         enemy_list = []
         enemy_bullet_list = []
+
         self.drawGame()
         self.createEnemies(enemy_list)
         pygame.display.flip()
@@ -97,15 +98,13 @@ class App:
         
             for bullet in player_bullet_list:
                 if 0 < bullet.y < 600:
-                    bullet.moveUp()
-                    
+                    bullet.moveUp()   
                 else:
                     player_bullet_list.pop(player_bullet_list.index(bullet))
             
             for bullet in enemy_bullet_list:
                 if 600 > bullet.y > 0:
-                    bullet.moveDown()
-                    
+                    bullet.moveDown()  
                 else:
                     enemy_bullet_list.pop(enemy_bullet_list.index(bullet))
                 

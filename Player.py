@@ -1,5 +1,5 @@
 from Characteristics import Characteristics
-
+import time
 
 class Player(Characteristics):
 
@@ -8,6 +8,8 @@ class Player(Characteristics):
         self.steps = steps
         self.score = 0
         self.cooldown = 0.4
+        self.timer_ = 0
+        self.start_cooldown = 0
 
     def moveLeft(self):
         self.x -= self.steps
@@ -17,6 +19,13 @@ class Player(Characteristics):
 
     def incScore(self):
         self.score += 1
+    
+    def resetCooldown(self):
+        self.start_cooldown = time.time()
+
+    def onCooldown(self):
+        self.timer_ = time.time() - self.start_cooldown
+        return self.timer_ > self.cooldown
 
 
 
