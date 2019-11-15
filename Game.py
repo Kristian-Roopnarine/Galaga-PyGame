@@ -14,6 +14,7 @@ class Player:
         self.startCooldown = 0
         self.time_elapsed = 0
         self.char = pygame.image.load('player_ship.png').convert()
+        self.hitbox = (self.x,self.y,self.width,self.height)
     
     def moveLeft(self):
         self.x -= self.steps
@@ -28,15 +29,17 @@ class Player:
         self.startCooldown = pygame.time.get_ticks()
     
     def updateCooldown(self):
-        self.time_elapsed = pygame.time.get_ticks() - self.startCooldown
+        self.time_elapsed = (pygame.time.get_ticks() - self.startCooldown)/1000
+        
 
     def onCooldown(self):
-        return self.time_elapsed > self.reloadTime
+        return self.time_elapsed < self.reloadTime
     
     def isHit(self,bullet):
         for b in bullet:
             b_x = b.getX()
             b_y = b.getY()
+            print(b_x,b_y)
             if self.x < b_x < self.x + self.width and self.y < b_y < self.y + self.height:
                 bullet.pop(bullet.index(b))
                 return True
@@ -53,7 +56,7 @@ class Player:
     def createBullet(self,bullets):
         #find middle of ship/enemy
         x = self.x + (self.width // 2)
-        y = self.y + (self.height // 2)
+        y = self.y 
 
         #create bullet
         bullet = Bullet(x,y,5,10,(255,192,203),5)
@@ -67,13 +70,14 @@ class Enemy:
         self.y = y
         self.width = 64
         self.height = 64
-        self.health = 3
+        self.health = 2
         self.canShoot = canShoot
         self.row = row
         self.reloadTime = 2
         self.time_elapsed = 0
         self.startCooldown = 0
         self.char = pygame.image.load('player_ship.png').convert_alpha()
+        self.hitbox = (self.x,self.y,self.width,self.height)
 
     def resetCooldown(self):
         self.startCooldown = pygame.time.get_ticks()
@@ -90,6 +94,7 @@ class Enemy:
             b_y = b.getY()
             if self.x < b_x < self.x + self.width and self.y < b_y < self.y + self.height:
                 bullet.pop(bullet.index(b))
+                print('hit')
                 return True
     
     def loseHealth(self):
@@ -128,7 +133,7 @@ class Bullet:
         self.y += self.step
     
     def getX(self):
-        return self.y
+        return self.x
     
     def getY(self):
         return self.y
@@ -174,7 +179,7 @@ class Game:
         self.win.blit(player_image,(player.x,player.y))
 
     def drawbullet(self):
-        for bullet in self.enemy_bullet_list:
+        for bullet in self.player_bullet_list:
             b = pygame.Rect(bullet.x,bullet.y,bullet.width,bullet.height)
             pygame.draw.rect(self.win,bullet.color,b)
 
@@ -185,6 +190,7 @@ class Game:
     def redraw(self):
         self.win.fill((0,0,0))
         self.drawPlayer()
+        self.drawbullet()
         self.drawEnemies()
         pygame.display.update()
     
@@ -195,26 +201,51 @@ class Game:
         self.drawPlayer()
         self.generateEnemies()
         self.drawEnemies()
+        player.resetCooldown()
         pygame.display.flip()
+        i=0
 
         while self.running:
-
             self.clock.tick(60)
+            player.updateCooldown()
+             
+            #main event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.endGame()
-            
+
+            for bullet in self.player_bullet_list:
+                if 0 < bullet.y < 800:
+                    bullet.moveUp()
+                else:
+                    self.player_bullet_list.pop(self.player_bullet_list.index(bullet))
+
+            #detect key presses
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_LEFT] and player.x > 0:
                 player.moveLeft()
+                player.hitbox = (player.x,player.y,player.width,player.height)
             
             if keys[pygame.K_RIGHT] and player.x < self.width - player.width:
                 player.moveRight()
+                player.hitbox = (player.x,player.y,player.width,player.height)
+            
+            if keys[pygame.K_SPACE] and not player.onCooldown():
+                player.createBullet(self.player_bullet_list)
+                player.resetCooldown()
+            
+            if player.isHit(self.enemy_bullet_list):
+                player.loseHealth()
 
+            for enemy in self.enemies:
+                if enemy.isHit(self.player_bullet_list):
+                    enemy.loseHealth()
+                    if enemy.health == 0:
+                        self.enemies.pop(self.enemies.index(enemy))
+                
             self.redraw()
-
-    
+            i += 1
 
 def resize(image):
     player_image = pygame.image.load(image).convert()
@@ -223,7 +254,7 @@ def resize(image):
 
 
 # enemy positions
-x = [68+25,268,468-25]
+x = [93,268,443]
 y = [225,125,25]
 pygame.init()
 window = pygame.display.set_mode((600,800))
