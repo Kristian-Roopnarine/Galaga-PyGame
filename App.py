@@ -41,9 +41,11 @@ class App:
         for x in range(100-(25//2),301,100):
             for y in range(25,301,100):
                 if y == 225:
-                    enemy = create_enemies(x,y,True)
-                else:
-                    enemy = create_enemies(x,y,False)
+                    enemy = create_enemies(x,y,True,1)
+                elif y == 125:
+                    enemy = create_enemies(x,y,False,2)
+                elif y == 25: 
+                    enemy = create_enemies(x,y,False,3)
                 list.append(enemy)
                 
     def drawEnemies(self,enemies):
@@ -88,6 +90,7 @@ class App:
         while self.running:
             self.clock.tick(60)
             self.updateCooldown()
+            shooter_count = 0
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -134,6 +137,18 @@ class App:
                     enemies.loseHealth()
                     if enemies.health == 0:
                         enemy_list.pop(enemy_list.index(enemies))
+            
+            for enemies in enemy_list:
+                if enemies.row == 1:
+                    shooter_count += 1
+                
+            if shooter_count == 0:
+                for enemies in enemy_list:
+                    if enemies.row == 2:
+                        enemies.canShoot = True
+            
+            if len(enemy_list) == 0:
+                self.endGame()
             
             self.screen.fill(self.background)
             self.drawPlayer()    
