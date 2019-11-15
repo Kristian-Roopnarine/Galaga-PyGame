@@ -3,7 +3,7 @@ from Player import Player
 from Enemy import *
 from Bullet import Bullet
 
-player = Player(175,525,25,25,(255,255,255),3,5)
+player = Player(175,525,25,25,(255,255,255),5,5)
 
 class App:
 
@@ -52,8 +52,15 @@ class App:
         for enemy in enemies:
             e = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
             pygame.draw.rect(self.screen, enemy.color , e)
-
     
+    def redraw(self,el,pblist,eblist):
+        self.screen.fill(self.background)
+        self.drawPlayer()    
+        self.drawEnemies(el)
+        self.drawBullet(pblist)
+        self.drawBullet(eblist)
+        pygame.display.update()
+
     def resetCooldown(self,character=None):
         if character == 'player':
             self.startPlayerCooldown = pygame.time.get_ticks()
@@ -128,7 +135,6 @@ class App:
                 
             if player.isHit(enemy_bullet_list):
                 player.loseHealth()
-                print(player.health)
                 if player.health == 0:
                     self.endGame()
             
@@ -149,13 +155,16 @@ class App:
             
             if len(enemy_list) == 0:
                 self.endGame()
-            
+
+            '''
             self.screen.fill(self.background)
             self.drawPlayer()    
             self.drawEnemies(enemy_list)
             self.drawBullet(player_bullet_list)
             self.drawBullet(enemy_bullet_list)
             pygame.display.update()
+            '''
+            self.redraw(enemy_list,player_bullet_list,enemy_bullet_list)
     
     
 
