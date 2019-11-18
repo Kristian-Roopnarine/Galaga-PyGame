@@ -65,12 +65,13 @@ class Player:
         bullets.append(bullet)
     
 class Enemy:
-    def __init__(self,x,y,canShoot,row):
-        self.x = x
-        self.y = y
+    def __init__(self,canShoot,row):
+        self.x = 0
+        self.y = 0
+        self.pos = [[93,225],[268,225],[443,225],[93,125],[268,125],[443,125],[93,25],[268,25],[443,25]]
         self.width = 64
         self.height = 64
-        self.health = 2
+        self.health = 1
         self.canShoot = canShoot
         self.row = row
         self.reloadTime = 2
@@ -94,7 +95,6 @@ class Enemy:
             b_y = b.getY()
             if self.x < b_x < self.x + self.width and self.y < b_y < self.y + self.height:
                 bullet.pop(bullet.index(b))
-                print('hit')
                 return True
     
     def loseHealth(self):
@@ -117,6 +117,13 @@ class Enemy:
         #push bullet into list
         bullets.append(bullet)
 
+    def setPosition(self,i):
+        self.x = self.pos[i][0]
+        self.y = self.pos[i][1]
+
+    def increaseHealth(self):
+        self.health += game.round
+
 class Bullet:
     def __init__(self,x,y,width,height,color,step):
         self.x = x
@@ -137,9 +144,12 @@ class Bullet:
     
     def getY(self):
         return self.y
-    
+'''
 def create_enemies(x,y,canShoot,row):
     return Enemy(x,y,canShoot,row)
+'''
+def create_enemies(canShoot,row):
+    return Enemy(canShoot,row)
 
 class Game:
     def __init__(self,win):
@@ -154,6 +164,9 @@ class Game:
         self.player_bullet_list = []
         self.win = win
         self.clock = pygame.time.Clock()
+        self.round = 1
+        self.roundFinished = False
+
     
     def draw(self,win):
         for y in range(self.height//5):
@@ -163,6 +176,7 @@ class Game:
 
     def generateEnemies(self):
         row = 1
+        '''
         for y_pos in y:
             for x_pos in x:
                 if row == 1:
@@ -173,7 +187,16 @@ class Game:
                     row += 1
                 elif row == 3:
                     enemy = create_enemies(x_pos,y_pos,False,row)
-                self.enemies.append(enemy)
+                    '''
+        for x in range(9):
+            if row == 1:
+                enemy = create_enemies(True,row)
+            elif row == 2:
+                enemy = create_enemies(False,row)
+            elif row == 3:
+                enemy = create_enemies(False,row)
+            enemy.setPosition(x)
+            self.enemies.append(enemy)
 
     def drawPlayer(self):
         self.win.blit(player_image,(player.x,player.y))
@@ -185,7 +208,7 @@ class Game:
 
     def drawEnemies(self):
         for enemy in self.enemies:
-            self.win.blit(player_image,(enemy.x,enemy.y))
+            self.win.blit(enemy_image,(enemy.x,enemy.y))
     
     def redraw(self):
         self.win.fill((0,0,0))
@@ -219,6 +242,12 @@ class Game:
                     bullet.moveUp()
                 else:
                     self.player_bullet_list.pop(self.player_bullet_list.index(bullet))
+            
+            for bullet in self.enemy_bullet_list:
+                if 0 > bullet.y > 800:
+                    bullet.moveDown()
+                else:
+                    self.enemy_bullet_list.pop(self.enemy_bullet_list.index(bullet))
 
             #detect key presses
             keys = pygame.key.get_pressed()
@@ -250,15 +279,15 @@ class Game:
 def resize(image):
     player_image = pygame.image.load(image).convert()
     return pygame.transform.scale(player_image,(64,64))
+    
 
 
-
+#main loop
 # enemy positions
-x = [93,268,443]
-y = [225,125,25]
 pygame.init()
 window = pygame.display.set_mode((600,800))
 player = Player()
+enemy_image = resize('enemy_ship.png')
 player_image = resize('player_ship.png')
 game = Game(window)
 game.start()
