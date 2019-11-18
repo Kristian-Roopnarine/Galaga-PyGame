@@ -39,7 +39,6 @@ class Player:
         for b in bullet:
             b_x = b.getX()
             b_y = b.getY()
-            print(b_x,b_y)
             if self.x < b_x < self.x + self.width and self.y < b_y < self.y + self.height:
                 bullet.pop(bullet.index(b))
                 return True
@@ -77,17 +76,16 @@ class Enemy:
         self.reloadTime = 2
         self.time_elapsed = 0
         self.startCooldown = 0
-        self.char = pygame.image.load('player_ship.png').convert_alpha()
         self.hitbox = (self.x,self.y,self.width,self.height)
 
     def resetCooldown(self):
         self.startCooldown = pygame.time.get_ticks()
     
     def updateCooldown(self):
-        self.time_elapsed = pygame.time.get_ticks() - self.startCooldown
+        self.time_elapsed = (pygame.time.get_ticks() - self.startCooldown) / 1000
 
     def onCooldown(self):
-        return self.time_elapsed > self.reloadTime
+        return self.time_elapsed < self.reloadTime
     
     def isHit(self,bullet):
         for b in bullet:
@@ -175,26 +173,13 @@ class Game:
                 pygame.draw.rect(self.win,self.background,rect)
 
     def generateEnemies(self):
-        row = 1
-        '''
-        for y_pos in y:
-            for x_pos in x:
-                if row == 1:
-                    enemy = create_enemies(x_pos,y_pos,True,row)
-                    row += 1
-                elif row == 2:
-                    enemy = create_enemies(x_pos,y_pos,False,row)
-                    row += 1
-                elif row == 3:
-                    enemy = create_enemies(x_pos,y_pos,False,row)
-                    '''
         for x in range(9):
-            if row == 1:
-                enemy = create_enemies(True,row)
-            elif row == 2:
-                enemy = create_enemies(False,row)
-            elif row == 3:
-                enemy = create_enemies(False,row)
+            if x <= 2:
+                enemy = create_enemies(True,1)
+            elif 2 < x <= 5:
+                enemy = create_enemies(False,2)
+            elif 5 < x <= 8:
+                enemy = create_enemies(False,3)
             enemy.setPosition(x)
             self.enemies.append(enemy)
 
@@ -203,6 +188,10 @@ class Game:
 
     def drawbullet(self):
         for bullet in self.player_bullet_list:
+            b = pygame.Rect(bullet.x,bullet.y,bullet.width,bullet.height)
+            pygame.draw.rect(self.win,bullet.color,b)
+        
+        for bullet in self.enemy_bullet_list:
             b = pygame.Rect(bullet.x,bullet.y,bullet.width,bullet.height)
             pygame.draw.rect(self.win,bullet.color,b)
 
@@ -227,7 +216,8 @@ class Game:
         player.resetCooldown()
         pygame.display.flip()
         i=0
-
+        for enemy in self.enemies:
+            enemy.resetCooldown()
         while self.running:
             self.clock.tick(60)
             player.updateCooldown()
@@ -244,7 +234,7 @@ class Game:
                     self.player_bullet_list.pop(self.player_bullet_list.index(bullet))
             
             for bullet in self.enemy_bullet_list:
-                if 0 > bullet.y > 800:
+                if 800 > bullet.y > 0:
                     bullet.moveDown()
                 else:
                     self.enemy_bullet_list.pop(self.enemy_bullet_list.index(bullet))
@@ -268,10 +258,21 @@ class Game:
                 player.loseHealth()
 
             for enemy in self.enemies:
+
+                #hit detection
                 if enemy.isHit(self.player_bullet_list):
                     enemy.loseHealth()
                     if enemy.health == 0:
                         self.enemies.pop(self.enemies.index(enemy))
+                
+                enemy.updateCooldown()
+
+                #shoot
+                if enemy.canShoot and not enemy.onCooldown():
+                    enemy.createBullet(self.enemy_bullet_list)
+                    enemy.resetCooldown()
+                
+            
                 
             self.redraw()
             i += 1
