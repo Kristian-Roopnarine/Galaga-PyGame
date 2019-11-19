@@ -71,7 +71,7 @@ class Enemy:
         self.pos = [[93,240],[268,240],[443,240],[93,140],[268,140],[443,140],[93,40],[268,40],[443,40]]
         self.width = 64
         self.height = 64
-        self.health = 1
+        self.health = 0
         self.canShoot = canShoot
         self.row = row
         self.reloadTime = 2
@@ -175,7 +175,7 @@ class Game:
         self.block = 10
         self.background = (0,0,0)
         self.running = True
-        self.round = 4
+        self.round = 1
         self.enemies = []
         self.enemy_bullet_list = []
         self.player_bullet_list = []
@@ -279,11 +279,10 @@ class Game:
                 if boss.direction == 'right':
                     boss.moveRight()
                     boss.hitbox = (boss.x,boss.y,boss.width,boss.height)
-                    print(boss.x)
                 if boss.direction =='left':
                     boss.moveLeft()
                     boss.hitbox = (boss.x,boss.y,boss.width,boss.height)
-                    print(boss.x)
+                    
                 
 
             #main event loop
@@ -333,7 +332,7 @@ class Game:
                 #hit detection
                 if enemy.isHit(self.player_bullet_list):
                     enemy.loseHealth()
-                    print(enemy.health)
+    
                     if enemy.health == 0:
                         if enemy.row == 1:
                             shooters['row_1'] -= 1
@@ -359,8 +358,16 @@ class Game:
             #check whether all enemies are done
             if num_enemies == 0:
                 self.round += 1
-            
-                if self.round <= 4:
+                self.win.fill((0,0,0))
+                text = round_info.render('Round ' + str(self.round), 1 ,(255,255,255))
+                self.drawPlayer()
+                self.win.blit(text,(225,350))
+                self.player_bullet_list = []
+                self.enemy_bullet_list = []
+                pygame.display.update()
+                time.sleep(2)
+
+                if self.round <= 4:  
                     self.newRound()
 
                     #reset enemies that can shoot
@@ -396,7 +403,7 @@ def resize(image,width,height):
 pygame.init()
 score = pygame.font.SysFont('comicsans',30)
 player_lives = pygame.font.SysFont('comicsans',30)
-
+round_info = pygame.font.SysFont('comicsans',50)
 window = pygame.display.set_mode((600,800))
 player = Player()
 enemy_image = resize('enemy_ship.png',64,64)
