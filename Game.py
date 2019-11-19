@@ -1,4 +1,5 @@
 import pygame
+import time
 
 class Player:
     key = (0,0,0)
@@ -23,7 +24,7 @@ class Player:
         self.x += self.steps
 
     def incScore(self):
-        self.score += 1
+        self.score += (game.round * 100)
 
     def resetCooldown(self):
         self.startCooldown = pygame.time.get_ticks()
@@ -67,7 +68,7 @@ class Enemy:
     def __init__(self,canShoot,row):
         self.x = 0
         self.y = 0
-        self.pos = [[93,225],[268,225],[443,225],[93,125],[268,125],[443,125],[93,25],[268,25],[443,25]]
+        self.pos = [[93,240],[268,240],[443,240],[93,140],[268,140],[443,140],[93,40],[268,40],[443,40]]
         self.width = 64
         self.height = 64
         self.health = 1
@@ -77,6 +78,15 @@ class Enemy:
         self.time_elapsed = 0
         self.startCooldown = 0
         self.hitbox = (self.x,self.y,self.width,self.height)
+        self.steps = 5
+        self.path = [self.x,300]
+        self.direction = 'right'
+
+    def moveRight(self):
+        self.x += self.steps
+    
+    def moveLeft(self):
+        self.x -= self.steps
 
     def resetCooldown(self):
         self.startCooldown = pygame.time.get_ticks()
@@ -121,6 +131,14 @@ class Enemy:
 
     def increaseHealth(self):
         self.health += game.round
+    
+    def changeStats(self,x,y,width,height,health,reloadTime):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.health = health
+        self.reloadTime = reloadTime
 
 class Bullet:
     def __init__(self,x,y,width,height,color,step):
@@ -142,6 +160,7 @@ class Bullet:
     
     def getY(self):
         return self.y
+    
 '''
 def create_enemies(x,y,canShoot,row):
     return Enemy(x,y,canShoot,row)
@@ -156,15 +175,13 @@ class Game:
         self.block = 10
         self.background = (0,0,0)
         self.running = True
-        self.round = 1
+        self.round = 4
         self.enemies = []
         self.enemy_bullet_list = []
         self.player_bullet_list = []
         self.win = win
         self.clock = pygame.time.Clock()
-        self.round = 1
-        self.roundFinished = False
-
+        self.bossFight = False
     
     def draw(self,win):
         for y in range(self.height//5):
@@ -182,6 +199,11 @@ class Game:
                 enemy = create_enemies(False,3)
             enemy.setPosition(x)
             self.enemies.append(enemy)
+    
+    def generateBoss(self):
+        boss = create_enemies(True,1)
+        boss.increaseHealth = self.round * 5
+        return boss
 
     def drawPlayer(self):
         self.win.blit(player_image,(player.x,player.y))
@@ -196,32 +218,74 @@ class Game:
             pygame.draw.rect(self.win,bullet.color,b)
 
     def drawEnemies(self):
-        for enemy in self.enemies:
-            self.win.blit(enemy_image,(enemy.x,enemy.y))
+        if self.round < 5:
+            for enemy in self.enemies:
+                self.win.blit(enemy_image,(enemy.x,enemy.y))
+        if self.round == 5:
+            for boss in self.enemies:
+                self.win.blit(boss_image,(boss.x,boss.y))
     
     def redraw(self):
         self.win.fill((0,0,0))
         self.drawPlayer()
         self.drawbullet()
         self.drawEnemies()
+        sc = score.render('Score: ' + str(player.score),1, (255,255,255))
+        lives = player_lives.render('Lives Remaining: ' + str(player.health),1,(255,255,255))
+        self.win.blit(sc,(125,15))
+        self.win.blit(lives,(300,15))
         pygame.display.update()
-    
+
+
+    def newRound(self):
+        self.generateEnemies()
+        self.drawEnemies()
+        for enemy in self.enemies:
+            enemy.resetCooldown()
+            enemy.increaseHealth()
+         
     def endGame(self):
         self.running = False
 
     def start(self):
         self.drawPlayer()
-        self.generateEnemies()
-        self.drawEnemies()
+        self.newRound()
+        print(self.round)
         player.resetCooldown()
         pygame.display.flip()
-        i=0
+        shooters = {'row_1':0,'row_2':0,'row_3':0}
         for enemy in self.enemies:
+            if enemy.row == 1:
+                shooters['row_1'] += 1
+            if enemy.row == 2:
+                shooters['row_2'] += 1
+            if enemy.row == 3:
+                shooters['row_3'] += 1
             enemy.resetCooldown()
+        
         while self.running:
+            num_enemies = len(self.enemies)
             self.clock.tick(60)
             player.updateCooldown()
-             
+
+            #boss fight
+            if self.bossFight:
+
+                if boss.x < 0:
+                    boss.direction = 'right'
+                if boss.x > 425:
+                    boss.direction = 'left'
+
+                if boss.direction == 'right':
+                    boss.moveRight()
+                    boss.hitbox = (boss.x,boss.y,boss.width,boss.height)
+                    print(boss.x)
+                if boss.direction =='left':
+                    boss.moveLeft()
+                    boss.hitbox = (boss.x,boss.y,boss.width,boss.height)
+                    print(boss.x)
+                
+
             #main event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -256,40 +320,88 @@ class Game:
             
             if player.isHit(self.enemy_bullet_list):
                 player.loseHealth()
+                if player.health == 0:
+                    self.endGame()
 
             for enemy in self.enemies:
+                #update enemies that can shoot
+                if shooters['row_1'] == 0 and enemy.row == 2:
+                    enemy.canShoot = True
+                if shooters['row_2'] == 0 and enemy.row == 3:
+                    enemy.canShoot = True
 
                 #hit detection
                 if enemy.isHit(self.player_bullet_list):
                     enemy.loseHealth()
+                    print(enemy.health)
                     if enemy.health == 0:
+                        if enemy.row == 1:
+                            shooters['row_1'] -= 1
+                        if enemy.row == 2:
+                            shooters['row_2'] -= 1
+                        if enemy.row == 3:
+                            shooters['row_3'] -= 1
+
+                        #increase player score
                         self.enemies.pop(self.enemies.index(enemy))
-                
+                        player.incScore()
+                        if self.round == 5:
+                            self.endGame()
+                        
+
                 enemy.updateCooldown()
 
                 #shoot
                 if enemy.canShoot and not enemy.onCooldown():
                     enemy.createBullet(self.enemy_bullet_list)
                     enemy.resetCooldown()
-                
             
-                
-            self.redraw()
-            i += 1
+            #check whether all enemies are done
+            if num_enemies == 0:
+                self.round += 1
+            
+                if self.round <= 4:
+                    self.newRound()
 
-def resize(image):
-    player_image = pygame.image.load(image).convert()
-    return pygame.transform.scale(player_image,(64,64))
+                    #reset enemies that can shoot
+                    shooters = {'row_1':0,'row_2':0,'row_3':0}
+                    for enemy in self.enemies:
+                        if enemy.row == 1:
+                            shooters['row_1'] += 1
+                        if enemy.row == 2:
+                            shooters['row_2'] += 1
+                        if enemy.row == 3:
+                            shooters['row_3'] += 1
+                        enemy.resetCooldown()
+
+                elif self.round == 5 and not self.bossFight:
+                    boss = self.generateBoss()
+                    boss.changeStats(100,40,150,150,25,0.3)
+                    self.enemies.append(boss)
+                    self.bossFight = True
+
+
+            self.redraw()
+            
+
+def resize(image,width,height):
+    player_image = pygame.image.load(image).convert_alpha()
+    player_image.set_colorkey((255,255,255)) 
+    return pygame.transform.scale(player_image,(width,height))
     
 
 
 #main loop
-# enemy positions
+#enemy positions
 pygame.init()
+score = pygame.font.SysFont('comicsans',30)
+player_lives = pygame.font.SysFont('comicsans',30)
+
 window = pygame.display.set_mode((600,800))
 player = Player()
-enemy_image = resize('enemy_ship.png')
-player_image = resize('player_ship.png')
+enemy_image = resize('enemy_ship.png',64,64)
+player_image = resize('player_ship.png',64,64)
+boss_image = resize('boss.png',150,150)
 game = Game(window)
 game.start()
 
