@@ -175,7 +175,7 @@ class Game:
         self.block = 10
         self.background = (0,0,0)
         self.running = True
-        self.round = 1
+        self.round = 4
         self.enemies = []
         self.enemy_bullet_list = []
         self.player_bullet_list = []
@@ -250,7 +250,6 @@ class Game:
     def start(self):
         self.drawPlayer()
         self.newRound()
-        print(self.round)
         player.resetCooldown()
         pygame.display.flip()
         shooters = {'row_1':0,'row_2':0,'row_3':0}
@@ -382,6 +381,15 @@ class Game:
                         enemy.resetCooldown()
 
                 elif self.round == 5 and not self.bossFight:
+                    self.win.fill((0,0,0))
+                    text = round_info.render('Boss Fight!', 1 ,(255,255,255))
+                    self.drawPlayer()
+                    self.win.blit(text,(225,350))
+                    self.player_bullet_list = []
+                    self.enemy_bullet_list = []
+                    pygame.display.update()
+                    time.sleep(2)
+
                     boss = self.generateBoss()
                     boss.changeStats(100,40,150,150,25,0.3)
                     self.enemies.append(boss)
